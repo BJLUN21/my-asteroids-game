@@ -27,8 +27,6 @@ import javafx.stage.Stage;
 //import java.net.http.HttpResponse;
 //import java.io.IOException;
 //import java.net.URI;
-//import java.util.concurrent.ExecutorService;
-//import java.util.concurrent.Executors;
 
 @Component
 public class Game {
@@ -118,10 +116,6 @@ public class Game {
 		for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
 			postEntityProcessorService.process(gameData, world);
 		}
-
-		//updateScore();
-		//Text textNode = (Text) gameWindow.getChildren().get(0);
-		//textNode.setText(scoreText.getText());
 	}
 
 	private void draw() {
