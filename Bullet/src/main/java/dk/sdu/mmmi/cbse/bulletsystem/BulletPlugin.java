@@ -3,9 +3,6 @@ package dk.sdu.mmmi.cbse.bulletsystem;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
-import dk.sdu.mmmi.cbse.common.data.entityparts.LifePart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.MovingPart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.PositionPart;
 import dk.sdu.mmmi.cbse.common.services.BulletSPI;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 
@@ -21,25 +18,15 @@ public class BulletPlugin implements IGamePluginService, BulletSPI {
 
 	@Override
 	public Entity createBullet(Entity entity, GameData gameData) {
-		PositionPart pp = entity.getPart(PositionPart.class);
-
-		float x = pp.getX();
-		float y = pp.getY();
-		float radians = pp.getRadians();
-
-		float maxSpeed = 500;
-		float acceleration = 5000;
-		float deceleration = 0;
-
-		float rotationSpeed = 0;
-
-		float radius = 0.5f;
-
 		Entity bullet = new Bullet(entity.getIsFriendly());
-		bullet.add(new MovingPart(deceleration, acceleration, maxSpeed, rotationSpeed));
-		bullet.add(new PositionPart(x + (float) Math.cos(radians) * 12, y + (float) Math.sin(radians) * 12, radians));
-		bullet.add(new LifePart(1,1));
-		bullet.setRadius(radius);
+		bullet.setPolygonCoordinates(1, -1, 1, 1, -1, 1, -1, -1);
+		double changeX = Math.cos(Math.toRadians(entity.getRotation()));
+		double changeY = Math.sin(Math.toRadians(entity.getRotation()));
+		bullet.setX(entity.getX() + changeX * 10);
+		bullet.setY(entity.getY() + changeY * 10);
+		bullet.setRotation(entity.getRotation());
+		bullet.setRadius(1);
+		bullet.setLife(1);
 
 		return bullet;
 	}

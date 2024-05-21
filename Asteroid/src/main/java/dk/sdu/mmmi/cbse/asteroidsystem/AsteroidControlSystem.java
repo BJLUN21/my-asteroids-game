@@ -3,124 +3,157 @@ package dk.sdu.mmmi.cbse.asteroidsystem;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
-import dk.sdu.mmmi.cbse.common.data.entityparts.LifePart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.MovingPart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.PositionPart;
 import dk.sdu.mmmi.cbse.common.services.IAsteroidSplitter;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+//import java.util.Random;
+//import java.util.concurrent.CompletableFuture;
 
 public class AsteroidControlSystem implements IEntityProcessingService, IAsteroidSplitter {
 	@Override
 	public void process(GameData gameData, World world) {
 
 		for (Entity asteroid : world.getEntities(Asteroid.class)) {
-			PositionPart positionPart = asteroid.getPart(PositionPart.class);
-			MovingPart movingPart = asteroid.getPart(MovingPart.class);
-			LifePart lp = asteroid.getPart(LifePart.class);
+			double changeX = Math.cos(Math.toRadians(asteroid.getRotation()));
+			double changeY = Math.sin(Math.toRadians(asteroid.getRotation()));
 
-			// accelerating
-			movingPart.setUp(true);
+			asteroid.setX(asteroid.getX() + changeX * 0.5);
+			asteroid.setY(asteroid.getY() + changeY * 0.5);
 
-			movingPart.process(gameData, asteroid);
-			positionPart.process(gameData, asteroid);
+			if (asteroid.getX() < 0) {
+				asteroid.setX(asteroid.getX() + gameData.getDisplayWidth());
+			}
+			if (asteroid.getX() > gameData.getDisplayWidth()) {
+				asteroid.setX(asteroid.getX() % gameData.getDisplayWidth());
+			}
+			if (asteroid.getY() < 0) {
+				asteroid.setY(asteroid.getY() + gameData.getDisplayHeight());
+			}
+			if (asteroid.getY() > gameData.getDisplayHeight()) {
+				asteroid.setY(asteroid.getY() % gameData.getDisplayHeight());
+			}
 
-			if (lp.getLife() <= 0) {
+			if (asteroid.getLife() <= 0) {
 				if (!asteroid.getIsSplit()) {
 					createSplitAsteroid(asteroid, world);
 				}
+				//updateScore(1);
 				world.removeEntity(asteroid);
 			}
-
-			updateShape(asteroid);
 		}
 	}
 
-	private void updateShape(Entity entity) {
-		float[] shapex = entity.getShapeX();
-		float[] shapey = entity.getShapeY();
-		PositionPart positionPart = entity.getPart(PositionPart.class);
-		float x = positionPart.getX();
-		float y = positionPart.getY();
-		float radians = positionPart.getRadians();
-		float sizeMod = 3f;
-		
-		if(entity.getIsSplit()) {
-			sizeMod = 2f;
-		}
-
-		shapex[0] = (float) (x + Math.cos(radians) * 9 * sizeMod);
-		shapey[0] = (float) (y + Math.sin(radians) * 9 * sizeMod);
-
-		shapex[1] = (float) (x + Math.cos(radians + Math.PI / 8) * 7 * sizeMod);
-		shapey[1] = (float) (y + Math.sin(radians + Math.PI / 8) * 7 * sizeMod);
-
-		shapex[2] = (float) (x + Math.cos(radians - 7 * Math.PI / 4) * 9 * sizeMod);
-		shapey[2] = (float) (y + Math.sin(radians - 7 * Math.PI / 4) * 9 * sizeMod);
-
-		shapex[3] = (float) (x + Math.cos(radians + 4 * Math.PI / 10) * 8 * sizeMod);
-		shapey[3] = (float) (y + Math.sin(radians + 4 * Math.PI / 10) * 8 * sizeMod);
-
-		shapex[4] = (float) (x + Math.cos(radians + Math.PI / 2) * 6 * sizeMod);
-		shapey[4] = (float) (y + Math.sin(radians + Math.PI / 2) * 6 * sizeMod);
-
-		shapex[5] = (float) (x + Math.cos(radians + 2 * Math.PI / 3) * 8 * sizeMod);
-		shapey[5] = (float) (y + Math.sin(radians + 2 * Math.PI / 3) * 8 * sizeMod);
-
-		shapex[6] = (float) (x + Math.cos(radians - 7 * Math.PI / 6) * 7 * sizeMod);
-		shapey[6] = (float) (y + Math.sin(radians - 7 * Math.PI / 6) * 7 * sizeMod);
-
-		shapex[7] = (float) (x + Math.cos(radians + 6 * Math.PI / 5) * 7 * sizeMod);
-		shapey[7] = (float) (y + Math.sin(radians + 6 * Math.PI / 5) * 7 * sizeMod);
-
-		shapex[8] = (float) (x + Math.cos(radians + 5 * Math.PI / 4) * 6 * sizeMod);
-		shapey[8] = (float) (y + Math.sin(radians + 5 * Math.PI / 4) * 6 * sizeMod);
-
-		shapex[9] = (float) (x + Math.cos(radians + 3 * Math.PI / 2) * 7 * sizeMod);
-		shapey[9] = (float) (y + Math.sin(radians + 3 * Math.PI / 2) * 7 * sizeMod);
-
-		shapex[10] = (float) (x + Math.cos(radians - 7 * Math.PI / 3) * 6 * sizeMod);
-		shapey[10] = (float) (y + Math.sin(radians - 7 * Math.PI / 3) * 6 * sizeMod);
-
-		shapex[11] = (float) (x + Math.cos(radians - Math.PI / 4) * 8 * sizeMod);
-		shapey[11] = (float) (y + Math.sin(radians - Math.PI / 4) * 8 * sizeMod);
-
-		entity.setShapeX(shapex);
-		entity.setShapeY(shapey);
-	}
 
 	@Override
 	public void createSplitAsteroid(Entity entity, World world) {
 
-		PositionPart pp = entity.getPart(PositionPart.class);
-
-		float maxSpeed = 50;
-		float acceleration = 50;
-		float deceleration = 0;
-
-		float[] displacements = {
+		double[] displacements = {
 			 20f,
 			-20f
 		};
-		float[] radians = {
-			(float) Math.PI * 2 * (float) Math.random(),
-			(float) Math.PI * 2 * (float) Math.random()
-		};
-		float rotationSpeed = 0;
-
-		float radius = 3f;
 
 		for (int i = 0; i < 2; i++) {
-
-			float x = pp.getX() + displacements[i];
-			float y = pp.getY() + displacements[i];
-
 			Entity asteroid = new Asteroid(true);
-			asteroid.add(new MovingPart(deceleration, acceleration, maxSpeed, rotationSpeed));
-			asteroid.add(new PositionPart(x, y, radians[i]));
-			asteroid.add(new LifePart(1));
-			asteroid.setRadius(radius);
+
+			double x = entity.getX() + displacements[i];
+			double y = entity.getY() + displacements[i];
+
+			float sizeMod = 2f;
+
+			float[] shapeX = new float[12];
+			float[] shapeY = new float[12];
+
+			shapeX[0] = (float) (Math.cos(0) * 9 * sizeMod);
+			shapeY[0] = (float) (Math.sin(0) * 9 * sizeMod);
+
+			shapeX[1] = (float) (Math.cos(0 + Math.PI / 8) * 7 * sizeMod);
+			shapeY[1] = (float) (Math.sin(0 + Math.PI / 8) * 7 * sizeMod);
+
+			shapeX[2] = (float) (Math.cos(0 - 7 * Math.PI / 4) * 9 * sizeMod);
+			shapeY[2] = (float) (Math.sin(0 - 7 * Math.PI / 4) * 9 * sizeMod);
+
+			shapeX[3] = (float) (Math.cos(0 + 4 * Math.PI / 10) * 8 * sizeMod);
+			shapeY[3] = (float) (Math.sin(0 + 4 * Math.PI / 10) * 8 * sizeMod);
+
+			shapeX[4] = (float) (Math.cos(0 + Math.PI / 2) * 6 * sizeMod);
+			shapeY[4] = (float) (Math.sin(0 + Math.PI / 2) * 6 * sizeMod);
+
+			shapeX[5] = (float) (Math.cos(0 + 2 * Math.PI / 3) * 8 * sizeMod);
+			shapeY[5] = (float) (Math.sin(0 + 2 * Math.PI / 3) * 8 * sizeMod);
+
+			shapeX[6] = (float) (Math.cos(0 - 7 * Math.PI / 6) * 7 * sizeMod);
+			shapeY[6] = (float) (Math.sin(0 - 7 * Math.PI / 6) * 7 * sizeMod);
+
+			shapeX[7] = (float) (Math.cos(0 + 6 * Math.PI / 5) * 7 * sizeMod);
+			shapeY[7] = (float) (Math.sin(0 + 6 * Math.PI / 5) * 7 * sizeMod);
+
+			shapeX[8] = (float) (Math.cos(0 + 5 * Math.PI / 4) * 6 * sizeMod);
+			shapeY[8] = (float) (Math.sin(0 + 5 * Math.PI / 4) * 6 * sizeMod);
+
+			shapeX[9] = (float) (Math.cos(0 + 3 * Math.PI / 2) * 7 * sizeMod);
+			shapeY[9] = (float) (Math.sin(0 + 3 * Math.PI / 2) * 7 * sizeMod);
+
+			shapeX[10] = (float) (Math.cos(0 - 7 * Math.PI / 3) * 6 * sizeMod);
+			shapeY[10] = (float) (Math.sin(0 - 7 * Math.PI / 3) * 6 * sizeMod);
+
+			shapeX[11] = (float) (Math.cos(0 - Math.PI / 4) * 8 * sizeMod);
+			shapeY[11] = (float) (Math.sin(0 - Math.PI / 4) * 8 * sizeMod);
+
+			asteroid.setPolygonCoordinates(
+					shapeX[0],
+					shapeY[0],
+					shapeX[1],
+					shapeY[1],
+					shapeX[2],
+					shapeY[2],
+					shapeX[3],
+					shapeY[3],
+					shapeX[4],
+					shapeY[4],
+					shapeX[5],
+					shapeY[5],
+					shapeX[6],
+					shapeY[6],
+					shapeX[7],
+					shapeY[7],
+					shapeX[8],
+					shapeY[8],
+					shapeX[9],
+					shapeY[9],
+					shapeX[10],
+					shapeY[10],
+					shapeX[11],
+					shapeY[11]
+			);
+			asteroid.setX(x);
+			asteroid.setY(y);
+			asteroid.setRadius(7.5f * sizeMod);
+			asteroid.setRotation(Math.random() * 360);
+			asteroid.setLife(1);
 
 			world.addEntity(asteroid);
 		}
 	}
+/*
+	public void updateScore(int points) {
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://localhost:8080/score/add?points=" + points))
+				.GET()
+				.build();
+
+		try {
+			client.send(request, HttpResponse.BodyHandlers.ofString());
+		} catch (IOException | InterruptedException e) {
+			// Enhanced logging
+			e.printStackTrace(); // Or use a logger for more control over output
+			System.err.println("Failed to update score: " + e.getMessage());
+		}
+	}
+*/
 }

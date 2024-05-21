@@ -1,42 +1,28 @@
 package dk.sdu.mmmi.cbse.common.data;
 
-import dk.sdu.mmmi.cbse.common.data.entityparts.EntityPart;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Entity implements Serializable {
 	private final UUID ID = UUID.randomUUID();
 
+	private double[] polygonCoordinates;
+	private double x;
+	private double y;
+	private double rotation;
+	private int life;
+
 	private float[] shapeX = new float[4];
 	private float[] shapeY = new float[4];
 	private float radius;
-	private Map<Class, EntityPart> parts;
-	
+
 	private boolean isPlayer = false;
 	private boolean isEnemy = false;
 	private boolean isAsteroid = false;
 	private boolean isSplit = false;
 	private boolean isBullet = false;
 	private boolean isFriendly = false;
-
-	public Entity() {
-		parts = new ConcurrentHashMap<>();
-	}
-
-	public void add(EntityPart part) {
-		parts.put(part.getClass(), part);
-	}
-
-	public void remove(Class partClass) {
-		parts.remove(partClass);
-	}
-
-	public <E extends EntityPart> E getPart(Class partClass) {
-		return (E) parts.get(partClass);
-	}
 
 	public float getRadius() {
 		return radius;
@@ -48,22 +34,6 @@ public class Entity implements Serializable {
 
 	public String getID() {
 		return ID.toString();
-	}
-
-	public float[] getShapeX() {
-		return shapeX;
-	}
-
-	public void setShapeX(float[] shapeX) {
-		this.shapeX = shapeX;
-	}
-
-	public float[] getShapeY() {
-		return shapeY;
-	}
-
-	public void setShapeY(float[] shapeY) {
-		this.shapeY = shapeY;
 	}
 	
 	public boolean getIsPlayer() {
@@ -112,5 +82,68 @@ public class Entity implements Serializable {
 
 	public void setIsFriendly(boolean isFriendly) {
 		this.isFriendly = isFriendly;
+	}
+
+
+	public void setPolygonCoordinates(double... coordinates ) {
+		this.polygonCoordinates = coordinates;
+	}
+
+	public double[] getPolygonCoordinates() {
+		return polygonCoordinates;
+	}
+
+
+	public void setX(double x) {
+		this.x =x;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+
+	public void setY(double y) {
+		this.y = y;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setRotation(double rotation) {
+		this.rotation = rotation;
+	}
+
+	public double getRotation() {
+		return rotation;
+	}
+
+	public void setLife(int life) {
+		this.life = life;
+	}
+
+	public int getLife() {
+		return this.life;
+	}
+
+	// bullet stuff
+	private double cooldownTime = 0.2;
+	private double lastShotTime = 0;
+
+	public double getCoolDownTime() {
+		return cooldownTime;
+	}
+
+	public void setCoolDownTime(double cooldownTime) {
+		this.cooldownTime = cooldownTime;
+	}
+
+	public double getLastShotTime() {
+		return lastShotTime;
+	}
+
+	public void setLastShotTime(double lastShotTime) {
+		this.lastShotTime = lastShotTime;
 	}
 }

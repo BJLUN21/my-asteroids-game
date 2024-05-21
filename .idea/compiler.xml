@@ -8,18 +8,30 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Bullet" />
         <module name="Player" />
+        <module name="scoring" />
         <module name="Asteroid" />
         <module name="Collision" />
         <module name="Enemy" />
+        <module name="Scoring" />
         <module name="Common" />
         <module name="Core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Asteroids" target="9" />
+      <module name="asteroids.jpms" target="9" />
       <module name="CommonAsteroids" target="9" />
-      <module name="my-asteroids-game" target="9" />
+      <module name="CommonBullet" target="9" />
       <module name="MyAsteroids.Game" target="9" />
+      <module name="MyAsteroidsGame" target="9" />
       <module name="scoring" target="17" />
+      <module name="scoringsystem" target="17" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Scoring" options="-parameters" />
+      <module name="scoring" options="-parameters" />
+    </option>
   </component>
 </project>

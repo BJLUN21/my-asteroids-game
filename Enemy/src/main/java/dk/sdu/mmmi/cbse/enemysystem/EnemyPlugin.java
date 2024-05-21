@@ -3,14 +3,10 @@ package dk.sdu.mmmi.cbse.enemysystem;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
-import dk.sdu.mmmi.cbse.common.data.entityparts.LifePart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.MovingPart;
-import dk.sdu.mmmi.cbse.common.data.entityparts.PositionPart;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 
 public class EnemyPlugin implements IGamePluginService {
 
-	private Entity enemy;
 
 	//Default constructor
 	public EnemyPlugin() {
@@ -20,35 +16,72 @@ public class EnemyPlugin implements IGamePluginService {
 	public void start(GameData gameData, World world) {
 
 		// Add entities to the world
-		enemy = createEnemyShip(gameData);
-		world.addEntity(enemy);
+		for (int i = 0; i < 2; i++) {
+			Entity enemy = createEnemyShip(gameData);
+			world.addEntity(enemy);
+		}
 	}
 
 	@Override
 	public void stop(GameData gameData, World world) {
 		// Remove entities
-		world.removeEntity(enemy);
+		for (Entity enemy : world.getEntities(Enemy.class)) {
+			world.removeEntity(enemy);
+		}
 	}
 
 	private Entity createEnemyShip(GameData gameData) {
 
-		float x = gameData.getDisplayWidth() * (float) Math.random();
-		float y = gameData.getDisplayHeight() * (float) Math.random();
+		float[] shapeX = new float[8];
+		float[] shapeY = new float[8];
 
-		float maxSpeed = 150;
-		float acceleration = 100;
-		float deceleration = 10;
+		shapeX[0] = (float) (Math.cos(0) * 9);
+		shapeY[0] = (float) (Math.sin(0) * 9);
 
-		float radians = (float) Math.PI * 2 * (float) Math.random();
-		float rotationSpeed = 6;
+		shapeX[1] = (float) (Math.cos(0 - Math.PI / 3) * 8);
+		shapeY[1] = (float) (Math.sin(0 - Math.PI / 3) * 8);
 
-		float radius = 4f;
+		shapeX[2] = (float) (Math.cos(0 - 2 * Math.PI / 3) * 2);
+		shapeY[2] = (float) (Math.sin(0 - 2 * Math.PI / 3) * 2);
+
+		shapeX[3] = (float) (Math.cos(0 - 4 * Math.PI / 5) * 8);
+		shapeY[3] = (float) (Math.sin(0 - 4 * Math.PI / 5) * 8);
+
+		shapeX[4] = (float) (Math.cos(0 + Math.PI) * 9);
+		shapeY[4] = (float) (Math.sin(0 + Math.PI) * 9);
+
+		shapeX[5] = (float) (Math.cos(0 + 4 * Math.PI / 5) * 8);
+		shapeY[5] = (float) (Math.sin(0 + 4 * Math.PI / 5) * 8);
+
+		shapeX[6] = (float) (Math.cos(0 + 2 * Math.PI / 3) * 2);
+		shapeY[6] = (float) (Math.sin(0 + 2 * Math.PI / 3) * 2);
+
+		shapeX[7] = (float) (Math.cos(0 + Math.PI / 3) * 8);
+		shapeY[7] = (float) (Math.sin(0 + Math.PI / 3) * 8);
 
 		Entity enemyShip = new Enemy();
-		enemyShip.add(new MovingPart(deceleration, acceleration, maxSpeed, rotationSpeed));
-		enemyShip.add(new PositionPart(x, y, radians));
-		enemyShip.add(new LifePart(3));
-		enemyShip.setRadius(radius);
+		enemyShip.setPolygonCoordinates(
+				shapeX[0],
+				shapeY[0],
+				shapeX[1],
+				shapeY[1],
+				shapeX[2],
+				shapeY[2],
+				shapeX[3],
+				shapeY[3],
+				shapeX[4],
+				shapeY[4],
+				shapeX[5],
+				shapeY[5],
+				shapeX[6],
+				shapeY[6],
+				shapeX[7],
+				shapeY[7]
+		);
+		enemyShip.setX(gameData.getDisplayHeight() * Math.random());
+		enemyShip.setY(gameData.getDisplayWidth() * Math.random());
+		enemyShip.setRadius(7);
+		enemyShip.setLife(3);
 
 		return enemyShip;
 	}

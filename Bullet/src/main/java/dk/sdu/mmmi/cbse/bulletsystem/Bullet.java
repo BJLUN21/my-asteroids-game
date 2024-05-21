@@ -7,7 +7,5 @@ public class Bullet extends Entity {
 	public Bullet(boolean isFriendly) {
 		setIsBullet(true);
 		setIsFriendly(isFriendly);
-		setShapeX(new float[2]);
-		setShapeY(new float[2]);
 	}
 }
