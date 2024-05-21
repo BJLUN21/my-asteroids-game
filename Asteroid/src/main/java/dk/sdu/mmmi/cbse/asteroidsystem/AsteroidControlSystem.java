@@ -6,11 +6,11 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IAsteroidSplitter;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+//import java.io.IOException;
+//import java.net.URI;
+//import java.net.http.HttpClient;
+//import java.net.http.HttpRequest;
+//import java.net.http.HttpResponse;
 //import java.util.Random;
 //import java.util.concurrent.CompletableFuture;
 
@@ -18,13 +18,17 @@ public class AsteroidControlSystem implements IEntityProcessingService, IAsteroi
 	@Override
 	public void process(GameData gameData, World world) {
 
-		for (Entity asteroid : world.getEntities(Asteroid.class)) {
+		for (Entity entity : world.getEntities(Asteroid.class)) {
+			Asteroid asteroid = (Asteroid) entity;
+
+			// movement
 			double changeX = Math.cos(Math.toRadians(asteroid.getRotation()));
 			double changeY = Math.sin(Math.toRadians(asteroid.getRotation()));
 
-			asteroid.setX(asteroid.getX() + changeX * 0.5);
-			asteroid.setY(asteroid.getY() + changeY * 0.5);
+			asteroid.setX(asteroid.getX() + changeX * asteroid.getSpeedFactor());
+			asteroid.setY(asteroid.getY() + changeY * asteroid.getSpeedFactor());
 
+			// keep asteroid within the bounds of the map
 			if (asteroid.getX() < 0) {
 				asteroid.setX(asteroid.getX() + gameData.getDisplayWidth());
 			}
@@ -38,6 +42,7 @@ public class AsteroidControlSystem implements IEntityProcessingService, IAsteroi
 				asteroid.setY(asteroid.getY() % gameData.getDisplayHeight());
 			}
 
+			// check if destroyed, and if it can split
 			if (asteroid.getLife() <= 0) {
 				if (!asteroid.getIsSplit()) {
 					createSplitAsteroid(asteroid, world);

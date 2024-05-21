@@ -4,8 +4,8 @@ package dk.sdu.mmmi.cbse.common.data;
 public class GameData {
 
 	private final GameKeys keys = new GameKeys();
-	private int displayWidth = 800;
-	private int displayHeight = 800;
+	private int displayWidth = 1280;
+	private int displayHeight = 720;
 
 	public GameKeys getKeys() {
 		return keys;

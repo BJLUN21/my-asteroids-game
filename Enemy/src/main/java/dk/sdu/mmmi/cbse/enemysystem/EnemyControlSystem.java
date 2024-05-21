@@ -15,24 +15,33 @@ public class EnemyControlSystem implements IEntityProcessingService {
 	@Override
 	public void process(GameData gameData, World world) {
 
-		for (Entity enemy : world.getEntities(Enemy.class)) {
+		for (Entity entity : world.getEntities(Enemy.class)) {
+			Enemy enemy = (Enemy) entity;
 
 			double rnd = Math.random();
 
-			// turning
+			// rotation
 			if (rnd < 0.5) {
-				enemy.setRotation(enemy.getRotation() + 6);
+				enemy.setRotation(enemy.getRotation() + 5);
 			} else {
-				enemy.setRotation(enemy.getRotation() - 6);
+				enemy.setRotation(enemy.getRotation() - 5);
 			}
 
-			// accelerating
-			//if (rnd < 0.15 || rnd >= 0.85) {}
+			// movement
 			double changeX = Math.cos(Math.toRadians(enemy.getRotation()));
 			double changeY = Math.sin(Math.toRadians(enemy.getRotation()));
-			enemy.setX(enemy.getX() + changeX);
-			enemy.setY(enemy.getY() + changeY);
+			enemy.setX(enemy.getX() + changeX * 2);
+			enemy.setY(enemy.getY() + changeY * 2);
 
+			// shooting
+			if (enemy.isReadyToFire()) {
+				for (BulletSPI bullet : getBulletSPIs()) {
+					world.addEntity(bullet.createBullet(enemy, gameData));
+				}
+				enemy.setLastFireTime(System.currentTimeMillis());
+			}
+
+			// keep ship within the bounds of the map
 			if (enemy.getX() < 0) {
 				enemy.setX(enemy.getX() + gameData.getDisplayWidth());
 			}
@@ -45,21 +54,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
 			if (enemy.getY() > gameData.getDisplayHeight()) {
 				enemy.setY(enemy.getY() % gameData.getDisplayHeight());
 			}
-
-			// shooting
-			if (canShoot(enemy)) {
-				for (BulletSPI bullet : getBulletSPIs()) {
-					world.addEntity(bullet.createBullet(enemy, gameData));
-				}
-				enemy.setLastShotTime(System.currentTimeMillis());
-			}
 		}
-	}
-
-	public boolean canShoot(Entity entity) {
-		long currentTime = System.currentTimeMillis();
-		double elapsedTimeSinceLastShot = (currentTime - entity.getLastShotTime()) / 1000.0; // Convert milliseconds to seconds
-		return elapsedTimeSinceLastShot >= entity.getCoolDownTime();
 	}
 
 	private Collection<? extends BulletSPI> getBulletSPIs() {

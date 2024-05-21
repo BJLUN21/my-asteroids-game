@@ -71,11 +71,6 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-        <dependency>
             <groupId>dk.sdu.mmmi.cbse</groupId>
             <artifactId>Collision</artifactId>
             <version>1.0.1-SNAPSHOT</version>

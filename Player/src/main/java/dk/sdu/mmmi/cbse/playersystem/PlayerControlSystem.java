@@ -21,28 +21,36 @@ public class PlayerControlSystem implements IEntityProcessingService {
 	@Override
 	public void process(GameData gameData, World world) {
 
-		for (Entity player : world.getEntities(Player.class)) {
+		for (Entity entity : world.getEntities(Player.class)) {
+			Player player = (Player) entity;
+
+			// rotation
 			if (gameData.getKeys().isDown(GameKeys.LEFT)) {
 				player.setRotation(player.getRotation() - 5);
 			}
 			if (gameData.getKeys().isDown(GameKeys.RIGHT)) {
 				player.setRotation(player.getRotation() + 5);
 			}
+
+			// movement
 			if (gameData.getKeys().isDown(GameKeys.UP)) {
 				double changeX = Math.cos(Math.toRadians(player.getRotation()));
 				double changeY = Math.sin(Math.toRadians(player.getRotation()));
-				player.setX(player.getX() + changeX);
-				player.setY(player.getY() + changeY);
+				player.setX(player.getX() + changeX * 2);
+				player.setY(player.getY() + changeY * 2);
 			}
+
+			// shooting
 			if(gameData.getKeys().isDown(GameKeys.SPACE)) {
-				if(canShoot(player)) {
+				if(player.isReadyToFire()) {
 					for (BulletSPI bullet : getBulletSPIs()) {
 						world.addEntity(bullet.createBullet(player, gameData));
 					}
-					player.setLastShotTime(System.currentTimeMillis());
+					player.setLastFireTime(System.currentTimeMillis());
 				}
 			}
 
+			// keep ship within the bounds of the map
 			if (player.getX() < 0) {
 				player.setX(player.getX() + gameData.getDisplayWidth());
 			}
@@ -56,12 +64,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
 				player.setY(player.getY() % gameData.getDisplayHeight());
 			}
 		}
-	}
-
-	public boolean canShoot(Entity entity) {
-		long currentTime = System.currentTimeMillis();
-		double elapsedTimeSinceLastShot = (currentTime - entity.getLastShotTime()) / 1000.0; // Convert milliseconds to seconds
-		return elapsedTimeSinceLastShot >= entity.getCoolDownTime();
 	}
 
 	private Collection<? extends BulletSPI> getBulletSPIs() {
